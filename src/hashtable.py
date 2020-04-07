@@ -103,15 +103,15 @@ class HashTable:
         '''
 
         index = self._hash_mod(key)
-        print("insert index", index, "value", value, "with key", key)
+        # print("insert index", index, "value", value, "with key", key)
         node = LinkedPair(key, value)
 
         if self.storage[index] is None:
             self.storage[index] = node
 
             self.count += 1
-            print("count", self.count)
-            # self.resize()
+            # print("count", self.count)
+            self.resize()
         else:
             self.storage[index].set_key_value(value,key)
 
@@ -139,7 +139,7 @@ class HashTable:
         if node.key == key:
             self.storage[index] = node.next
             self.count -=1
-            # self.resize()
+            self.resize()
             return key
         else:
             current = node
@@ -148,11 +148,12 @@ class HashTable:
                 if next_node.key == key:
                     current.next = next_node.next
                     self.count -= 1
-                    # self.resize()
+                    self.resize()
                     return key
                 else:
                     current = next_node
                     next_node = current.next
+                    
 
 
     def retrieve(self, key):
