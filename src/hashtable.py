@@ -7,6 +7,38 @@ class LinkedPair:
         self.value = value
         self.next = None
 
+    def delete(self):
+        if self.next:
+            self.value = self.next.value
+            self.key = self.next.key
+            self.next.delete()
+        else:
+            self = None
+
+    def delete_by_key(self, key):
+        if self.key == key:
+            self.delete()
+            return key
+        elif self.next:
+            return self.next.delete_by_key(key)
+        else:
+            return None
+
+    def set_key_value(self):
+        if self.key == key:
+            return self.value
+        elif self.next:
+            return self.next.set_key_value
+    
+    def get_key_value(self):
+        if self.key = key:
+            return self.value
+        elif self.next:
+            return self.get_key_value(key)
+        else:
+            return None
+
+
 class HashTable:
     '''
     A hash table that with `capacity` buckets
@@ -15,6 +47,7 @@ class HashTable:
     def __init__(self, capacity):
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
+        self.count = 0
 
 
     def _hash(self, key):
@@ -23,7 +56,8 @@ class HashTable:
 
         You may replace the Python hash with DJB2 as a stretch goal.
         '''
-        return hash(key)
+
+        return self._hash_djb2(key)
 
 
     def _hash_djb2(self, key):
@@ -32,7 +66,12 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-        pass
+        hash_num = 5381
+
+        for x in key:
+            hash_num = ((hash_num << 5) + hash_num) + ord(x)
+        return hash_num & 0xFFFFFFFF
+
 
 
     def _hash_mod(self, key):
@@ -54,7 +93,16 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+
+        index = self._hash_mod(key)
+        node = LinkedPair(key, value)
+
+        if self.storage[index] = None:
+            self.storage[index] = node
+            self.capacity += 1
+            self.resize()
+        else:
+            self.storage[index].set_value
 
 
 
