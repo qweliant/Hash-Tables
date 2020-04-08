@@ -7,44 +7,7 @@ class LinkedPair:
         self.value = value
         self.next = None
 
-    def delete(self):
-        if self.next:
-            self.value = self.next.value
-            self.key = self.next.key
-            self.next.delete()
-        else:
-            self = None
-
-    def delete_by_key(self, key):
-        if self.key == key:
-            self.delete()
-            return key
-        elif self.next:
-            return self.next.delete_by_key(key)
-        else:
-            return None
-
-    def set_key_value(self, value, key):
-        """
-        recursiv method to insert in lis
-        will override same keys,
-        if there is a next node, call the function againg
-        """
-        if self.key == key:
-            self.value = value
-        elif self.next:
-            self.next.set_key_value(value, key)
-        else:
-            self.next = LinkedPair(key, value)
-        
     
-    def get_key_value(self, key ):
-        if self.key == key:
-            return self.value
-        elif self.next:
-            return self.next.get_key_value(key)
-        else:
-            return None
 
 
 class HashTable:
@@ -55,8 +18,6 @@ class HashTable:
     def __init__(self, capacity):
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
-        self.count = 0
-
 
     def _hash(self, key):
         '''
@@ -80,15 +41,12 @@ class HashTable:
             hash_num = ((hash_num << 5) + hash_num) + ord(x)
         return hash_num & 0xFFFFFFFF
 
-
-
     def _hash_mod(self, key):
         '''
         Take an arbitrary key and return a valid integer index
         within the storage capacity of the hash table.
         '''
         return self._hash(key) % self.capacity
-
 
     def insert(self, key, value):
         '''
@@ -103,25 +61,12 @@ class HashTable:
         '''
 
         index = self._hash_mod(key)
-        # print("insert index", index, "value", value, "with key", key)
-        node = LinkedPair(key, value)
+        head = self.storage[index]
 
-        if self.storage[index] is None:
-            self.storage[index] = node
+        new_head = LinkedPair(key, value)
+        new_head.next = head
 
-            self.count += 1
-            # print("count", self.count)
-            self.resize()
-        else:
-            self.storage[index].set_key_value(value,key)
-
-    def get_index(self, key):
-
-        index = self._hash_mod(key)
-        if self.storage[index] is not None:
-            return index
-        else:
-            return None
+        self.storage[index] = new_head
 
     def remove(self, key):
         '''
@@ -131,28 +76,17 @@ class HashTable:
 
         Fill this in.
         '''
-        index = self.get_index(key)
-        if index is None:
-            return "Key is not present"
+        index = self._hash_mod(key)
+        dummy_head = LinkedPair("dummy", "dummy")
+        head = dummy_head
+        dummy_head.next = self.storage[index]
 
-        node = self.storage[index]
-        if node.key == key:
-            self.storage[index] = node.next
-            self.count -=1
-            self.resize()
-            return key
-        else:
-            current = node
-            next_node = node.next
-            while next_node is not None:
-                if next_node.key == key:
-                    current.next = next_node.next
-                    self.count -= 1
-                    self.resize()
-                    return key
-                else:
-                    current = next_node
-                    next_node = current.next
+        while head.next != None:
+            if head.next.key == key:
+                head.next = head.next.next
+                break
+            head = head.next
+        self.storage[index] = dummy_head.next
                     
 
 
@@ -164,15 +98,13 @@ class HashTable:
 
         Fill this in.
         '''
-        index = self.get_index(key)
-        if index is None:
-            return "Key is missing"
-
-        else:
-            # node = self.capacity[index]
-            return self.storage[index].get_key_value(key)
+        index = self._hash_mod(key)
+        head = self.storage[index]
+        while head != None:
+            if head.key == key:
+                return head.value
+            head = head.next
         
-
 
     def resize(self):
         '''
@@ -187,12 +119,10 @@ class HashTable:
         self.capacity = capacity * 2
         self.storage = [None] * self.capacity
         for i in range(capacity):
-            node = storage[i]
-            while node != None:
-                self.insert(node.key, node.value)
-                node = node.next
-
-
+            head = storage[i]
+            while head != None:
+                self.insert(head.key, head.value)
+                head = head.next
 
 # if __name__ == "__main__":
 #     ht = HashTable(2)
